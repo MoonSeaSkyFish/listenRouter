@@ -9,7 +9,7 @@ macro listenRouter*(prmPort: int, stmt: untyped): untyped =
       stmt
     let settings = newSettings(
       port = Port(prmPort),
-      staticDir = getCurrentDir() & "/public"
+      staticDir = getCurrentDir() / "public"
     )
     var j = initJester(templateRouter, settings = settings)
     j.serve()
