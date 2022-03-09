@@ -7,7 +7,7 @@ import listenrouter
 
 listenRouter(5555):
   get "/":
-    resp  "<p>hello world</p>
+    resp  "<p>hello nim</p>
 ```
 
 convert ...
@@ -16,8 +16,8 @@ convert ...
 import jester
 router templateRouter:
   get "/":
-    resp  "<p>hello world</p>
-let settings = newSettings(port=5555)
+    resp  "<p>hello nim</p>
+let settings = newSettings(port=Port(5555))
 var j = initJester(templateRouter, settings=settings)
 j.serve()
 ```
