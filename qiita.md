@@ -37,6 +37,43 @@ j.serve()
 
 
 ```nim
+import macros, os
+import jester
+import jester/private/utils
+export jester
+
+macro makeRoute(cfg: Settings, stmt: untyped): untyped =
+  let stmt = newStmtList(
+    nnkCommand.newTree(
+      newIdentNode("router"),
+      newIdentNode("listenMainRouter"),
+      stmt
+    )
+  )
+  quote do:
+    `stmt`
+    var j = initJester(listenMainRouter, settings = `cfg`)
+    j.serve()
+
+macro listenRouter*(cfg: Settings, stmt: untyped): untyped =
+  getAST(makeRoute(cfg, stmt))
+
+macro listenRouter*(port: int, stmt: untyped): untyped =
+  let cfg = quote do:
+    newSettings(port = Port(`port`),
+                 staticDir = getCurrentDir() / "public")
+  getAST(makeRoute(cfg, stmt))
+```
+
+ASTツリーを簡単に記述しました。
+
+
+## 間違え
+
+
+以下、間違えたので削除ですが、どう間違えたのかを記録に残しておきます。いないと思いますが、似たような間違えをする人がいるかもしれないので。
+
+```nim
 import jester
 import macros, os
 
@@ -74,7 +111,7 @@ StmtList
         StrLit "hello"
 \```
 
-この、StmtListの部分はいらないため、stmt[0]としています。
+この、StmtListの部分はいらないため、stmt[0]としています。→これだと、最初のgetしか処理しません。
 
 どーてもいいですが、template makeRouterの引数、prmPortは、portとしたら、はまりました。冷静になって考えてみれば、テンプレートなのだから当たり前なのですが……
 
