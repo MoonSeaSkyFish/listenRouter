@@ -14,11 +14,11 @@ convert ...
 
 ```
 import jester
-router templateRouter:
+router listenMainRouter:
   get "/":
     resp  "<p>hello nim</p>"
 let settings = newSettings(port=Port(5555))
-var j = initJester(templateRouter, settings=settings)
+var j = initJester(listenMainRouter, settings=settings)
 j.serve()
 ```
 

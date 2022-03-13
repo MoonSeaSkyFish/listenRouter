@@ -1,23 +1,27 @@
-import jester
 import macros, os
-
+import jester
+import jester/private/utils
 export jester
 
-macro listenRouter*(prmPort: int, stmt: untyped): untyped =
-  template makeRouter(prmPort: int, stmt: untyped): untyped =
-    router templateRouter:
+macro makeRoute(cfg: Settings, stmt: untyped): untyped =
+  let stmt = newStmtList(
+    nnkCommand.newTree(
+      newIdentNode("router"),
+      newIdentNode("listenMainRouter"),
       stmt
-    let settings = newSettings(
-      port = Port(prmPort),
-      staticDir = getCurrentDir() / "public"
     )
-    var j = initJester(templateRouter, settings = settings)
+  )
+  quote do:
+    `stmt`
+    var j = initJester(listenMainRouter, settings = `cfg`)
     j.serve()
-  getAST(makeRouter(prmPort, stmt[0]))
 
+macro listenRouter*(cfg: Settings, stmt: untyped): untyped =
+  getAST(makeRoute(cfg, stmt))
 
-when isMainModule:
-  listenRouter(5555):
-    get "/":
-      resp "<p>hello, world.</p>"
+macro listenRouter*(port: int, stmt: untyped): untyped =
+  let cfg = quote do:
+    newSettings(port = Port(`port`),
+                 staticDir = getCurrentDir() / "public")
+  getAST(makeRoute(cfg, stmt))
 
